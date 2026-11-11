@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(join(root, 'package.json'));
-const { analyze } = require('./diagnostics.js');
+const { analyze } = require('./lang/analyzer.js');
 
 let fails = 0;
 const ok = (cond, msg) => { if (!cond) { fails++; console.error('FAIL:', msg); } else console.log('ok:', msg); };
