@@ -147,5 +147,87 @@ const elseIf = (cond) => analyze(['program e', 'kamus', '  x : integer', 'algori
   ok(!at(P('  x : integer', '\n\nfunction f() -> integer\nalgoritma\n  return 1\nendfunction'), 'Missing blank line'), 'blank line between units is fine');
 }
 
+// type checking happens before Run: [kamus, statement, expected message]
+{
+  const LIST = '  type Address : pointer to E\n  type E : <\n    info : integer,\n    next : Address\n  >\n  p : Address\n  e : E';
+  const K = '  x : integer\n  r : real\n  b : boolean\n  s : string\n  c : char\n  arr : array[0..2] of integer\n  q : pointer to integer\n' + LIST;
+  const SUBS = '\n\nfunction dua(n: integer) -> integer\nalgoritma\n  return n * 2\nendfunction\n\nprocedure isi(out v: integer)\n{ I.S. -\n  F.S. v terisi }\nalgoritma\n  v = 1\nendprocedure';
+  const check = (stmt) => analyze(`program t\nkamus\n${K}\nalgoritma\n  x = 1\n  r = 1.5\n  b = true\n  s = "a"\n  c = 'a'\n  arr[0] = 1\n  q = &x\n  p = NIL\n  e.info = 1\n${stmt}\nendprogram${SUBS}`).filter(d => d.sev === 0).map(d => d.msg);
+  const wrong = [
+    ['  x = "satu"', "Type mismatch in assignment to 'x' (expected integer, got string)"],
+    ['  x = r', 'expected integer, got real'],
+    ['  b = x', 'expected boolean, got integer'],
+    ['  arr[0] = c', "assignment to 'arr[0]'"],
+    ['  e.info = s', "assignment to 'e.info'"],
+    ['  q = x', "use '&' for an address"],
+    ['  x = q', "use '*' to read the value"],
+    ['  x = x / 2', "'integer / integer' not allowed"],
+    ['  x = s - 1', "cannot '-' string and integer"],
+    ['  b = s < s', "cannot '<' string and string"],
+    ['  b = x == s', "cannot '==' integer and string"],
+    ['  b = not x', "'not' needs a boolean"],
+    ['  x = -s', 'cannot negate string'],
+    ['  if x then\n  endif', 'Non-boolean condition'],
+    ['  repeat\n  until x + 1', 'Non-boolean condition'],
+    ['  for x = 1 to r do\n  endfor', 'for bounds must be integers'],
+    ['  for r = 1 to 2 do\n  endfor', "Loop variable 'r' must be an integer"],
+    ['  x = dua()', "Wrong argument count for 'dua' (expected 1, got 0)"],
+    ['  x = dua(s)', "Type mismatch in argument 'dua.n'"],
+    ['  x = isi(x)', "'isi' is a procedure"],
+    ['  isi(3)', 'Not a variable'],
+    ['  isi(r)', "Type mismatch in argument 'isi.v'"],
+    ['  x = dua', "'dua' is a function — call it with ( )"],
+    ['  x = x(1)', "'x' is a variable, not a function or procedure"],
+    ['  x = p.info', "'.' does not work on a pointer — use '->info'"],
+    ['  x = e->info', "'->' needs a pointer, but this is a E — use '.info'"],
+    ['  x = e.umur', "Unknown field 'umur' in E"],
+    ['  x = x[0]', 'Cannot index non-array'],
+    ['  x = arr[r]', 'Array index must be integer'],
+    ['  x = *x', "'*' needs a pointer"],
+    ['  x = len(x)', 'len expects string, got integer'],
+    ['  allocate(x)', "allocate expects a pointer variable 'x'"],
+    ['  input(arr)', "Cannot input into 'arr'"],
+    ['  output(e)', 'Cannot output compound value'],
+    ['  case x of\n    "a":\n      output(1)\n  endcase', 'Case label is string, but the case value is integer'],
+    ['  x = 2 ^ 3', "There is no '^' operator"],
+  ];
+  for (const [stmt, want] of wrong) {
+    const got = check(stmt);
+    ok(got.length === 1 && got[0].includes(want), `type check: ${JSON.stringify(stmt.trim().split('\n')[0])} -> ${want} (got ${JSON.stringify(got)})`);
+  }
+  const fine = ['  r = x', '  s = c', '  r = x / 2.0', '  x = x div 2', '  b = c < \'z\'', '  b = p == NIL', '  x = *q + p->info + e.info + arr[x] + dua(dua(x))', '  isi(arr[1])', '  isi(e.info)', '  isi(p->info)', '  *q = 3', '  p = e.next', '  input(x, r, c, b, s, arr[0], e.info)'];
+  for (const stmt of fine) ok(check(stmt).length === 0, `type check ok: ${stmt.trim()} (got ${JSON.stringify(check(stmt))})`);
+  const ret = (body) => analyze(`program t\nkamus\n  x : integer\nalgoritma\n  x = f()\nendprogram\n\nfunction f() -> integer\nalgoritma\n${body}\nendfunction`);
+  ok(ret('  return "a"').some(d => d.sev === 0 && d.msg.includes("Type mismatch in return of 'f' (expected integer, got string)")), 'type check: return value');
+  ok(ret('  output(1)').some(d => d.sev === 1 && d.msg.includes("Function 'f' never returns")), 'function without return warns');
+}
+
+// reading and assignment order
+{
+  const P = (body) => analyze(`program t\nkamus\n  x, y : integer\nalgoritma\n${body}\nendprogram`).map(d => d.msg);
+  ok(P('  input(x)\n  y = x\n  output(y)').length === 0, 'input assigns its variables (no use-before-assign warning)');
+  ok(P('  y = x\n  x = 1\n  output(y)').some(m => m === "'x' may be used before assignment"), 'reading before any assignment warns');
+  ok(P('  x = 1\n  output(x)').some(m => m === "'y' declared but never used"), 'unused program variable is noted');
+  const viaSub = analyze('program t\nkamus\n  g : integer\nalgoritma\n  isi()\n  output(g)\nendprogram\n\nprocedure isi()\n{ I.S. -\n  F.S. g terisi }\nalgoritma\n  g = 1\nendprocedure');
+  ok(viaSub.length === 0, 'a global assigned by a subprogram is not flagged', JSON.stringify(viaSub));
+}
+
+// mistakes that used to cascade are reported once
+{
+  const E = (src) => analyze(src).filter(d => d.sev === 0).map(d => `L${d.line + 1} ${d.msg}`);
+  const upper = E('PROGRAM t\nKAMUS\n  x : Integer\nALGORITMA\n  x = 1\n  Output(x)\nENDPROGRAM');
+  ok(upper.length === 6 && upper.every(m => m.includes('Keywords are lowercase')) && upper[0] === "L1 Keywords are lowercase — write 'program', not 'PROGRAM'", 'uppercase keywords: one clear message each', JSON.stringify(upper));
+  const nested = E('program t\nkamus\n  x : integer\nalgoritma\n  x = dua()\n  function dua() -> integer\n  algoritma\n    return 2\n  endfunction\n  output(x)\nendprogram');
+  ok(nested.length === 1 && nested[0] === 'L6 Subprogram must be declared outside program block', 'function inside the program block: one error', JSON.stringify(nested));
+  const inKamus = E('program t\nkamus\n  x : integer\n  x = 1\n  output(x)\nendprogram');
+  ok(inKamus.length === 2 && inKamus[0].includes('Assignment inside kamus') && inKamus[1].includes("Statement inside kamus — add 'algoritma'"), 'statements in kamus say where they belong', JSON.stringify(inKamus));
+  ok(E('program t\nkamus\n  x : integer\nalgoritma\n  y : integer\n  x = 1\nendprogram').join() === 'L5 Declaration inside algoritma — move it up into kamus', 'declaration in algoritma');
+  ok(E('program t\nkamus\n  type A : <\n    a : A\n  >\nalgoritma\n  output(1)\nendprogram')[0].includes("Struct 'A' contains itself"), 'struct containing itself');
+  ok(E('program t\nkamus\n  type B : C\n  type C : B\nalgoritma\n  output(1)\nendprogram')[0].includes('defined in terms of itself'), 'cyclic type alias');
+  ok(E('program t\nkamus\n  a : array[5..2] of integer\nalgoritma\n  output(1)\nendprogram')[0].includes('Array lower bound 5 exceeds upper bound 2'), 'inverted array bounds');
+  ok(E('program t\nkamus\n  constant N : integer = 3\n  constant M : integer = N * 2\n  a : array[1..M] of integer\nalgoritma\n  a[6] = N\nendprogram').length === 0, 'constant expressions over earlier constants');
+  ok(E('program a\nalgoritma\n  output(1)\nendfunction')[0].includes("'endfunction' does not match 'program a'"), 'mismatched end keyword');
+}
+
 if (fails) { console.error(`\n${fails} failure(s)`); process.exit(1); }
 console.log('\nAll diagnostics checks passed.');

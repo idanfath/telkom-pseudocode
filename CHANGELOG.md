@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.8.0
+
+The checker, runner, completion and rename were rewritten on one shared syntax tree (`lang/`). Before, each of them re-read the source text with its own rules.
+
+Run:
+
+- Programs run in a terminal. Output appears as it is printed, and `input(...)` waits for a typed line when the program reaches it (was: one box asking for every value before the run). `Ctrl+C` stops a running program.
+- A `string` that is the last variable of an `input(...)` takes the rest of its line, so names with spaces can be read. Values may be spread over several lines.
+- Fixed: a `for` loop that never ran, followed by a read of its variable, crashed the runner.
+- A `real` variable assigned an integer holds a real, so `r = 1` then `r / 2` works.
+- `deallocate` of a pointer to a variable (`p = &a`) is its own error, not "NIL pointer dereference".
+- Runtime errors and "done" no longer open a popup; they are in the terminal.
+
+Checker:
+
+- Type errors are reported while typing instead of at Run: wrong-type assignments, arguments, return values and case labels, non-boolean conditions and `and` / `or` / `not` operands, `integer / integer`, arithmetic on the wrong types, comparing structs or arrays, wrong argument counts, unknown fields, indexing a non-array, passing a constant or an expression to an `out` / `in/out` parameter, calling a procedure inside an expression.
+- `.` on a pointer and `->` on a struct say which one to use. Assigning a variable to a pointer suggests `&` or `*`.
+- Fixed: `input(x)` was flagged with "'x' may be used before assignment".
+- Array bounds that are not constants, and `lo > hi`, are errors at the declaration.
+- Uppercase keywords (`PROGRAM`, `Integer`, `nil`) are reported once each with the spelling to use (was: "Statement outside any program" on every line).
+- `^` gets its own message (there is no power operator).
+- A function written inside the program block is reported once and still checked (was: a cascade of errors).
+- A function with no `return` at all is a warning. Unused variables are reported for the program too, not only subprograms.
+- A struct that contains itself by value, a type alias defined in terms of itself, duplicate fields and duplicate parameters are errors.
+- Declarations inside `algoritma` and statements inside `kamus` say where they belong.
+- Constants may be constant expressions over earlier constants: `constant M : integer = N * 2`.
+
+Editor:
+
+- Completion and rename read the same model as the checker, so they agree with it about scopes and types. Completion shows resolved types.
+- F2 opens on the word under the cursor.
+
+Internal:
+
+- `parser/` and `diagnostics.js` are gone; see the table in the README for `lang/`.
+- `scripts/check-robustness.mjs`: about 3000 damaged versions of the samples must not crash the checker, runner, completion or rename.
+- Tests for mistakes that moved from runtime to the checker assert both: the checker reports them, and the runner still refuses them when the checker is bypassed.
+
 ## 0.7.0
 
 Checker:

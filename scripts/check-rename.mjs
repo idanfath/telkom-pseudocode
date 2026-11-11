@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(join(root, 'package.json'));
-const { findRenameRanges } = require('./parser/rename.js');
+const { findRenameRanges } = require('./lang/rename.js');
 
 let fails = 0;
 const ok = (cond, msg, extra = '') => { if (!cond) { fails++; console.error('FAIL:', msg, extra); } else console.log('ok:', msg); };
@@ -130,7 +130,7 @@ same(
   'rename-skips-kamus-prototype-params');
 
 // 18. new names: identifiers only, never reserved words or builtins
-const { isValidNewName } = require('./parser/rename.js');
+const { isValidNewName } = require('./lang/rename.js');
 ok(isValidNewName('jumlah_2') === null, 'new name: identifier ok');
 ok(/reserved/.test(isValidNewName('if') || ''), 'new name: reserved word rejected', isValidNewName('if'));
 ok(/reserved/.test(isValidNewName('output') || ''), 'new name: builtin rejected');

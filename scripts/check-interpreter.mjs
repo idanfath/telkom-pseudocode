@@ -340,5 +340,46 @@ const specBoth = (name, src, ln, sub) => {
   ok(main.error && /recursion too deep/i.test(main.error.msg) && main.error.line + 1 === 15 && main.output[0] === 'start', 'in-process: stack overflow is a clean error', JSON.stringify(main.error) + JSON.stringify(main.output));
 }
 
+// regressions and behaviour added with the tree-walking runner
+{
+  spec('for: a loop that never runs leaves its variable at the start value', prog('  i : integer', '  for i = 3 to 1 do\n    output(i)\n  endfor\n  output(i)'), ['3']);
+  spec('for: the variable keeps its last value', prog('  i : integer', '  for i = 1 to 2 do\n    output(i)\n  endfor\n  output(i)'), ['1', '2', '2']);
+  spec('input: a string as the last variable takes the rest of its line', prog('  n : integer\n  s : string', '  input(n, s)\n  output(s, n)'), ['Budi Santoso 7'], '7 Budi Santoso');
+  spec('input: values spread over lines', prog('  a, b : integer\n  s : string', '  input(s)\n  input(a, b)\n  output(s, a + b)'), ['Budi Santoso 7'], 'Budi Santoso\n3\n4');
+  spec('input: a string that is not last is one word', prog('  n : integer\n  s : string', '  input(s, n)\n  output(s, n)'), ['Budi 7'], 'Budi 7');
+  spec('real: an integer stored in a real variable is a real', prog('  r : real', '  r = 1\n  output(r / 2)'), ['0.5']);
+  spec('struct: assignment copies, fields included', prog('  type M : <\n    a : integer,\n    v : array[0..1] of integer\n  >\n  m, n : M', '  m.a = 1\n  m.v[0] = 5\n  n = m\n  n.a = 2\n  n.v[0] = 6\n  output(m.a, m.v[0], n.a, n.v[0])'), ['1 5 2 6']);
+  spec('struct: in parameter is a copy, in/out is shared', prog('  type M : <\n    a : integer\n  >\n  m : M', '  m.a = 1\n  byValue(m)\n  output(m.a)\n  byRef(m)\n  output(m.a)', 'procedure byValue(in x: M)\n{ I.S. x\n  F.S. tidak berubah }\nalgoritma\n  x.a = 9\nendprocedure\n\nprocedure byRef(in/out x: M)\n{ I.S. x\n  F.S. x.a = 9 }\nalgoritma\n  x.a = 9\nendprocedure'), ['1', '9']);
+  spec('pointer: pointer to pointer, *p2 = *p1', prog('  a, b : integer\n  p1, p2 : pointer to integer\n  pp : pointer to pointer to integer', '  a = 1\n  b = 2\n  p1 = &a\n  p2 = &b\n  *p2 = *p1\n  pp = &p1\n  output(b, p1 == p2, **pp)'), ['1 false 1']);
+  spec('pointer: NIL prints as NIL', prog('  p : pointer to integer', '  p = NIL\n  output(p, p == NIL)'), ['NIL true']);
+  spec('return: leaves nested loops', prog('  x : integer', '  x = cari(3)\n  output(x, cari(9))', 'function cari(v: integer) -> integer\nkamus\n  i : integer\nalgoritma\n  for i = 0 to 5 do\n    while true do\n      if i == v then\n        return i * 2\n      endif\n      i = i + 0\n      if true then\n        x = 0\n      endif\n      return 0 - 1\n    endwhile\n  endfor\n  return 0 - 2\nendfunction'), ['-1 -1']);
+  specErr('out parameter starts unassigned', prog('  x : integer', '  x = 1\n  f(x)', 'procedure f(out v: integer)\n{ I.S. -\n  F.S. v }\nalgoritma\n  output(v)\n  v = 1\nendprocedure'), 13, "Uninitialized variable 'v'");
+  specErr('deallocate of a pointer to a variable', prog('  a : integer\n  p : pointer to integer', '  a = 1\n  p = &a\n  deallocate(p)'), 8, 'points to a variable');
+  specErr('uninitialized array element', prog('  a : array[0..1] of integer\n  x : integer', '  a[0] = 1\n  x = a[1]'), 7, 'Uninitialized array element [1]');
+  specErr('uninitialized field', prog('  type M : <\n    a : integer,\n    b : integer\n  >\n  m : M\n  x : integer', '  m.a = 1\n  x = m.b'), 11, "Uninitialized variable 'b'");
+  const typed = runProgram(prog('  n : integer', '  input(n)'), 'Budi');
+  ok(typed.error && typed.error.line + 1 === 5 && typed.error.msg === "Invalid input 'Budi' for integer 'n'", 'invalid input for an integer', JSON.stringify(typed.error));
+}
+
+// live output and on-demand input (what the terminal uses)
+{
+  const { startRun } = require('./lang/run-worker.js');
+  const events = [];
+  const answers = ['Budi Santoso', '20'];
+  const result = await new Promise((resolve) => {
+    const run = startRun(prog('  s : string\n  n : integer', '  output("Nama?")\n  input(s)\n  output("Umur?")\n  input(n)\n  output("Halo", s, n + 1)'), {
+      onOutput: (l) => events.push('out ' + l),
+      onNeedInput: () => { events.push('need'); setTimeout(() => run.sendLine(answers.shift()), 5); },
+      onDone: resolve,
+    });
+  });
+  ok(JSON.stringify(events) === JSON.stringify(['out Nama?', 'need', 'out Umur?', 'need', 'out Halo Budi Santoso 21']) && !result.error, 'interactive: output and input interleave in program order', JSON.stringify(events));
+  const killed = await new Promise((resolve) => {
+    const run = startRun(prog('  n : integer', '  n = 0\n  while true do\n    n = n + 0\n  endwhile'), { onOutput() {}, onNeedInput() {}, onDone: resolve }, { maxSteps: 1e12 });
+    setTimeout(() => run.kill(), 50);
+  });
+  ok(killed === null, 'interactive: an endless program can be killed');
+}
+
 if (fails) { console.error(`\n${fails} failure(s)`); process.exit(1); }
 console.log('\nAll interpreter checks passed.');

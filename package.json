@@ -1,8 +1,8 @@
 {
   "name": "telkom-pseudocode",
   "displayName": "Telkom Pseudocode",
-  "description": "Syntax highlighting, live checks, completion, rename, and a runner for Telkom University pseudocode",
-  "version": "0.7.0",
+  "description": "Syntax highlighting, live type checking, completion, rename, and a terminal runner for Telkom University pseudocode",
+  "version": "0.8.0",
   "publisher": "telkom-pseudocode",
   "license": "MIT",
   "engines": {
@@ -63,6 +63,6 @@
     ]
   },
   "scripts": {
-    "check": "node scripts/check-grammar.mjs && node scripts/check-diagnostics.mjs && node scripts/check-interpreter.mjs && node scripts/check-completion.mjs && node scripts/check-rename.mjs && node scripts/check-extension.mjs"
+    "check": "node scripts/check-grammar.mjs && node scripts/check-diagnostics.mjs && node scripts/check-interpreter.mjs && node scripts/check-completion.mjs && node scripts/check-rename.mjs && node scripts/check-extension.mjs && node scripts/check-robustness.mjs"
   }
 }

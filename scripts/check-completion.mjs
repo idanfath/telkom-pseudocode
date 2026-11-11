@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(join(root, 'package.json'));
-const { getCompletions } = require('./parser/completion.js');
+const { getCompletions } = require('./lang/completion.js');
 
 let fails = 0;
 const labels = (items) => items.map(i => i.label).sort();
