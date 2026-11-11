@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(join(root, 'package.json'));
-const { runProgram } = require('./parser/interpreter.js');
+const { runProgram } = require('./lang/interpreter.js');
 
 let fails = 0;
 const ok = (cond, msg, extra = '') => { if (!cond) { fails++; console.error('FAIL:', msg, extra); } else console.log('ok:', msg); };
@@ -40,15 +40,25 @@ const bad = [
   ['err_nilderef.pseudo', '', {}, 10, 'NIL pointer dereference'],
   ['err_useafterfree.pseudo', '', {}, 14, 'Use after free'],
   ['err_uninit.pseudo', '', {}, 5, "Uninitialized variable 'x'"],
-  ['err_typemismatch.pseudo', '', {}, 7, "cannot '+'"],
   ['err_noinput.pseudo', '5', {}, 5, 'Not enough input values'],
   ['err_noreturn.pseudo', '', {}, 5, 'finished without return'],
-  ['err_arity.pseudo', '', {}, 5, 'Wrong argument count'],
   ['err_infinite.pseudo', '', { maxSteps: 5000 }, 7, 'Execution limit exceeded'],
   ['err_oob.pseudo', '', {}, 5, 'out of bounds [0..2]'],
   ['err_subrange.pseudo', '', {}, 5, 'out of subrange [0..100]'],
-  ['err_paramtype.pseudo', '', {}, 5, 'Type mismatch'],
 ];
+// type and arity mistakes are caught by the checker before Run (squiggle in the editor);
+// the runner still refuses them when the gate is bypassed: [file, line1based, msgSub]
+const caught = [
+  ['err_typemismatch.pseudo', 7, "cannot '+'"],
+  ['err_arity.pseudo', 5, 'Wrong argument count'],
+  ['err_paramtype.pseudo', 5, 'Type mismatch'],
+];
+for (const [f, ln, sub] of caught) {
+  const r = run(f);
+  ok(!!r.staticErrors && r.staticErrors.some(d => d.line + 1 === ln && d.msg.includes(sub)), `${f} refused by static gate`, JSON.stringify(r.staticErrors));
+  const raw = run(f, '', { ignoreStatic: true });
+  ok(!!raw.error && raw.error.line + 1 === ln && raw.error.msg.includes(sub), `${f} runner refuses it too`, JSON.stringify(raw.error));
+}
 // err_loopvar + err_wrongtype are caught by the static gate first (squiggle in editor)
 // (runtime path unreachable via run gate; static assertions below cover them)
 {
@@ -115,6 +125,14 @@ const specErr = (name, src, ln, sub) => {
     `err ${JSON.stringify(r.error)} static ${JSON.stringify(r.staticErrors)}`);
 };
 
+// a mistake the checker reports before Run, and the runner refuses when the gate is bypassed
+const specBoth = (name, src, ln, sub) => {
+  const r = runProgram(src);
+  ok(!!r.staticErrors && r.staticErrors.some(d => d.line + 1 === ln && d.msg.includes(sub)), name + ' (checker)', `static ${JSON.stringify(r.staticErrors)} err ${JSON.stringify(r.error)}`);
+  const raw = runProgram(src, '', { ignoreStatic: true });
+  ok(!!raw.error && raw.error.line + 1 === ln && raw.error.msg.includes(sub), name + ' (runner)', `err ${JSON.stringify(raw.error)}`);
+};
+
 // else belongs to the if whose block it closes, not to an inner if already ended by endif
 {
   const nested = (a, b) => prog('  a, b : boolean', `  a = ${a}\n  b = ${b}\n  if a then\n    if b then\n      output("inner")\n    endif\n  else\n    output("outer-else")\n  endif\n  output("end")`);
@@ -140,7 +158,7 @@ const specErr = (name, src, ln, sub) => {
   spec('short-circuit: stops at closing paren', prog('  x : boolean', '  x = (true or f()) and false\n  output(x)', SIDE), ['false']);
   spec('short-circuit: skips nested parens and calls', prog('  x : boolean', '  x = false and (f() or g(1, 2))\n  output(x)', SIDE + '\n\nfunction g(a, b: integer) -> boolean\nalgoritma\n  return true\nendfunction'), ['false']);
   spec('short-circuit: stops at argument comma', prog('  x : integer', '  x = g(false and f(), 7)\n  output(x)', SIDE + '\n\nfunction g(a: boolean, b: integer) -> integer\nalgoritma\n  return b\nendfunction'), ['7']);
-  specErr('short-circuit: non-boolean left still errors', prog('  x : boolean', '  x = 1 and true'), 5, 'Non-boolean');
+  specBoth('short-circuit: non-boolean left still errors', prog('  x : boolean', '  x = 1 and true'), 5, 'Non-boolean');
 }
 
 // array bounds come from the program's declared constants
@@ -152,8 +170,8 @@ const specErr = (name, src, ln, sub) => {
   specErr('array bound: MAX-1 idiom', prog(K2 + '  a : array[0..MAX-1] of integer', '  a[2] = 7'), 6, 'out of bounds [0..1]');
   specErr('array bound: through a type alias', prog(K2 + '  type T : array[0..MAX-1] of integer\n  a : T', '  a[2] = 7'), 7, 'out of bounds [0..1]');
   specErr('array bound: arithmetic', prog(K2 + '  a : array[1..MAX*2] of integer', '  a[5] = 7'), 6, 'out of bounds [1..4]');
-  specErr('array bound: non-constant is an error at its declaration', prog('  n : integer\n  a : array[0..n] of integer', '  output(1)'), 4, "Non-constant array bound 'n'");
-  specErr('array bound: undeclared MAX has no default', prog('  a : array[0..MAX] of integer', '  output(1)'), 3, "Non-constant array bound 'MAX'");
+  specBoth('array bound: non-constant is an error at its declaration', prog('  n : integer\n  a : array[0..n] of integer', '  output(1)'), 4, "Non-constant array bound 'n'");
+  specBoth('array bound: undeclared MAX has no default', prog('  a : array[0..MAX] of integer', '  output(1)'), 3, "Non-constant array bound 'MAX'");
   spec('array bound: local array uses a global constant', prog(K2 + '  x : integer', '  x = f()\n  output(x)', 'function f() -> integer\nkamus\n  a : array[0..MAX-1] of integer\nalgoritma\n  a[1] = 9\n  return a[1]\nendfunction'), ['9']);
   spec('array bound: constant local to the subprogram', prog('  x : integer', '  x = f()\n  output(x)', 'function f() -> integer\nkamus\n  constant N : integer = 3\n  a : array[0..N-1] of integer\nalgoritma\n  a[2] = 9\n  return a[2]\nendfunction'), ['9']);
 }
@@ -193,8 +211,8 @@ const specErr = (name, src, ln, sub) => {
   spec('array param: function reads alias-typed array', prog(A, '  arr[0] = 1\n  arr[1] = 2\n  output(sum(arr))', 'function sum(a: myArr) -> integer\nalgoritma\n  return a[0] + a[1]\nendfunction'), ['3']);
   spec('array param: in-mode is a copy', prog(A, '  arr[0] = 1\n  arr[1] = 2\n  set(arr)\n  output(arr[0])', `procedure set(in a: myArr)\n${IS}algoritma\n  a[0] = 99\nendprocedure`), ['1']);
   spec('array param: in/out writes back', prog(A, '  arr[0] = 1\n  arr[1] = 2\n  set(arr)\n  output(arr[0])', `procedure set(in/out a: myArr)\n${IS}algoritma\n  a[0] = 99\nendprocedure`), ['99']);
-  specErr('array param: different bounds rejected', prog(A + '  big : array[0..2] of integer', '  big[0] = 1\n  output(sum(big))', 'function sum(a: myArr) -> integer\nalgoritma\n  return a[0]\nendfunction'), 8, 'Type mismatch');
-  specErr('array param: whole-array assignment still rejected', prog(A + '  other : myArr', '  arr[0] = 1\n  arr[1] = 2\n  other = arr'), 9, 'Cannot assign array');
+  specBoth('array param: different bounds rejected', prog(A + '  big : array[0..2] of integer', '  big[0] = 1\n  output(sum(big))', 'function sum(a: myArr) -> integer\nalgoritma\n  return a[0]\nendfunction'), 8, 'Type mismatch');
+  specBoth('array param: whole-array assignment still rejected', prog(A + '  other : myArr', '  arr[0] = 1\n  arr[1] = 2\n  other = arr'), 9, 'Cannot assign array');
 }
 
 // array elements, struct fields and pointer fields work anywhere a variable does
@@ -210,7 +228,7 @@ const specErr = (name, src, ln, sub) => {
   spec('in/out: pointer field', prog(L, '  allocate(p)\n  p->info = 1\n  inc(p->info)\n  output(p->info)\n  deallocate(p)', INC), ['2']);
   spec('in/out: swap two array elements', prog('  arr : array[0..1] of integer', '  arr[0] = 1\n  arr[1] = 2\n  swap(arr[0], arr[1])\n  output(arr[0], arr[1])', 'procedure swap(in/out a, b: integer)\n{ I.S. a, b\n  F.S. ditukar }\nkamus\n  t : integer\nalgoritma\n  t = a\n  a = b\n  b = t\nendprocedure'), ['2 1']);
   spec('out: into array element', prog('  arr : array[0..1] of integer', '  fill(arr[1])\n  output(arr[1])', 'procedure fill(out v: integer)\n{ I.S. -\n  F.S. v = 9 }\nalgoritma\n  v = 9\nendprocedure'), ['9']);
-  specErr('element types: struct array rejects an integer', prog(M + '  d : array[0..1] of M', '  d[0] = 5'), 9, 'Type mismatch');
+  specBoth('element types: struct array rejects an integer', prog(M + '  d : array[0..1] of M', '  d[0] = 5'), 9, 'Type mismatch');
   specErr('element types: subrange array enforces range', prog('  d : array[0..1] of integer[0..5]', '  d[0] = 99'), 5, 'out of subrange [0..5]');
   spec('element types: struct array field write', prog(M + '  d : array[0..1] of M', '  d[1].a = 4\n  output(d[1].a)'), ['4']);
   spec('element types: 2D array', prog('  g : array[0..1] of array[0..2] of integer', '  g[1][2] = 8\n  output(g[1][2])'), ['8']);
@@ -234,7 +252,7 @@ const specErr = (name, src, ln, sub) => {
   addr('address: different variables, different addresses', prog('  a, b : integer', '  a = 1\n  b = 2\n  output(&a)\n  output(&b)'), o => HEX.test(o[0]) && HEX.test(o[1]) && o[0] !== o[1]);
   spec('address: &a passed to a pointer parameter', prog('  a : integer', '  a = 1\n  set(&a)\n  output(a)', 'procedure set(in p: pointer to integer)\n{ I.S. p menunjuk integer\n  F.S. nilainya 25 }\nalgoritma\n  *p = 25\nendprocedure'), ['25']);
   spec('address: &a compares equal to a pointer to a', prog('  a : integer\n  p : pointer to integer', '  p = &a\n  output(p == &a)'), ['true']);
-  specErr('address: &a into a non-pointer is a type error', prog('  a, x : integer', '  a = 1\n  x = &a'), 6, 'Type mismatch');
+  specBoth('address: &a into a non-pointer is a type error', prog('  a, x : integer', '  a = 1\n  x = &a'), 6, 'Type mismatch');
 }
 
 // syntax the skill allows
@@ -281,8 +299,8 @@ const specErr = (name, src, ln, sub) => {
 // whole structs and arrays don't compare; div and mod agree (both truncate, as in C/Go)
 {
   const M = '  type M : <\n    a : integer\n  >\n  m, n : M';
-  specErr('compare: struct == struct is an error', prog(M, '  m.a = 1\n  n.a = 2\n  output(m == n)'), 10, 'compare field by field');
-  specErr('compare: array == array is an error', prog('  a, b : array[0..1] of integer', '  a[0] = 1\n  b[0] = 1\n  output(a == b)'), 7, 'compare element by element');
+  specBoth('compare: struct == struct is an error', prog(M, '  m.a = 1\n  n.a = 2\n  output(m == n)'), 10, 'compare field by field');
+  specBoth('compare: array == array is an error', prog('  a, b : array[0..1] of integer', '  a[0] = 1\n  b[0] = 1\n  output(a == b)'), 7, 'compare element by element');
   spec('compare: fields still compare', prog(M, '  m.a = 1\n  n.a = 1\n  output(m.a == n.a)'), ['true']);
   spec('div/mod: signs and the identity q*d + r = n', prog('  q, r : integer', '  q = (0 - 7) div 3\n  r = (0 - 7) mod 3\n  output(q, r, q * 3 + r)\n  q = 7 div (0 - 3)\n  r = 7 mod (0 - 3)\n  output(q, r)\n  output(7 div 3, 7 mod 3)'), ['-2 -1 -7', '-2 1', '2 1']);
 }
@@ -301,14 +319,14 @@ const specErr = (name, src, ln, sub) => {
   spec('string index: t = s[0] with t a string', prog('  s, t : string', '  s = "abc"\n  t = s[0]\n  output(t, len(t))'), ['a 1']);
   spec('string index: c = s[1] with c a char', prog('  s : string\n  c : char', '  s = "abc"\n  c = s[1]\n  output(c)'), ['b']);
   spec('string index: char literal into a string variable', prog('  t : string', "  t = 'x'\n  output(t)"), ['x']);
-  specErr("string index: s[0] = 'Z' is still a type error", prog('  s : string', "  s = \"abc\"\n  s[0] = 'Z'"), 6, 'Type mismatch');
+  specBoth("string index: s[0] = 'Z' is still a type error", prog('  s : string', "  s = \"abc\"\n  s[0] = 'Z'"), 6, 'Type mismatch');
   spec('string index: s[0] = "Z" writes', prog('  s : string', '  s = "abc"\n  s[0] = "Z"\n  output(s)'), ['Zbc']);
 }
 
 // deep recursion: the worker runner (used by the extension) reaches the 1000-level cap;
 // the in-process runner reports a clean, located error and keeps earlier output
 {
-  const { runInWorker } = require('./parser/run-worker.js');
+  const { runInWorker } = require('./lang/run-worker.js');
   const deep = (n) => prog('  x : integer', `  output("start")\n  x = s(${n})\n  output(x)`, 'function s(n: integer) -> integer\nalgoritma\n  if n == 0 then\n    return 0\n  endif\n  return n + s(n - 1)\nendfunction');
   const w900 = await runInWorker(deep(900));
   ok(!w900.error && JSON.stringify(w900.output) === JSON.stringify(['start', '405450']), 'worker: recursion 900 deep', JSON.stringify(w900));

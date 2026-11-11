@@ -345,7 +345,7 @@ function analyzeProgram(text) {
     switch (op) {
       case 'and': case 'or':
         for (const [t, side] of [[lt, e.left], [rt, e.right]])
-          if (!isUnknown(t) && t.k !== 'bool') error(side.span, `Type mismatch: '${op}' needs booleans (got ${describe(t)})`);
+          if (!isUnknown(t) && t.k !== 'bool') error(side.span, `Non-boolean operand for '${op}' (got ${describe(t)})`);
         return BOOL;
       case '+':
         if (lt.k === 'string' && rt.k === 'string') return STRING;
