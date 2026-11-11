@@ -1,0 +1,15 @@
+program err_useafterfree
+kamus
+  type Address : pointer to ElmList
+  type ElmList : <
+    info : integer,
+    next : Address
+  >
+  p : Address
+algoritma
+  allocate(p)
+  p->info = 1
+  p->next = NIL
+  deallocate(p)
+  p->info = 2
+endprogram

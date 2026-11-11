@@ -1,0 +1,66 @@
+program all_constructs
+kamus
+  constant PI : real = 3.14
+  type desimal : real
+  a, b : integer
+  r : real
+  c : char
+  flag : boolean
+  s : string
+  arr : array[0..9] of integer
+algoritma
+  a = 10
+  b = 3
+  r = 1.5
+  c = 'z'
+  flag = (a > b) and (r <= PI) or not (a == b)
+  s = "abc" + "def"
+  arr[0] = a div b
+  arr[1] = a mod b
+  output(a, b, r, c, flag, s)
+  output("Nilai:", a)
+  output("Alamat:", &a)
+  if a > b then
+    output("a besar")
+  else if a == b then
+    output("sama")
+  else
+    output("b besar")
+  endif
+  case a of
+    1:
+      output("satu")
+    else:
+      output("bukan satu")
+  endcase
+  for a = 0 to 9 do
+    arr[a] = a
+  endfor
+  while a > 0 do
+    a = a - 1
+  endwhile
+  repeat
+    a = a + 1
+  until a >= 5
+  deallocate_test(a)
+endprogram
+
+function max2(a, b: integer) -> integer
+{ Mengembalikan nilai maksimum antara a dan b }
+kamus
+  result : integer
+algoritma
+  if a > b then
+    result = a
+  else
+    result = b
+  endif
+  return result
+endfunction
+
+procedure deallocate_test(in/out A: integer)
+{ I.S. A terdefinisi
+  F.S. A bertambah 1 }
+algoritma
+  A = A + 1
+endprocedure

@@ -1,0 +1,16 @@
+program bad_demo
+kamus
+  x : integer
+  x : integer
+  arr : array[0..MAX] of integer
+algoritma
+  y = 5
+  x = 10
+  output("Nilai: " + x)
+  z <- 3
+  for i = 0 to n do
+    arr[i] = i
+  endfor
+  if x > 0 then
+    output("pos")
+endprogram

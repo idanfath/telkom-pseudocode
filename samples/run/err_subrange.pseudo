@@ -1,0 +1,7 @@
+program err_subrange
+kamus
+  umur : integer[0..100]
+algoritma
+  umur = 150
+  output(umur)
+endprogram

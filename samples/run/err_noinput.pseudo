@@ -1,0 +1,7 @@
+program err_noinput
+kamus
+  x, y : integer
+algoritma
+  input(x, y)
+  output(x, y)
+endprogram

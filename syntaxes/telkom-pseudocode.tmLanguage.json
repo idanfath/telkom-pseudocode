@@ -1,0 +1,183 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Telkom Pseudocode",
+  "scopeName": "source.telkom-pseudocode",
+  "fileTypes": ["pseudo", "tpseudo"],
+  "patterns": [
+    {"include": "#comment"},
+    {"include": "#string-double"},
+    {"include": "#char-single"},
+    {"include": "#number"},
+    {"include": "#keyword-control"},
+    {"include": "#keyword-io"},
+    {"include": "#keyword-type"},
+    {"include": "#constant"},
+    {"include": "#operator"},
+    {"include": "#function-call"},
+    {"include": "#identifier"}
+  ],
+  "repository": {
+    "comment": {
+      "name": "comment.block.pseudo",
+      "begin": "\\{",
+      "end": "\\}",
+      "patterns": [
+        {
+          "name": "comment.block.pseudo.spec",
+          "match": "\\b(I\\.S\\.|F\\.S\\.)"
+        }
+      ]
+    },
+    "string-double": {
+      "name": "string.quoted.double.pseudo",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.pseudo",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "char-single": {
+      "name": "constant.character.pseudo",
+      "match": "'(\\\\.|[^'\\\\])'"
+    },
+    "number": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.pseudo",
+          "match": "\\b\\d+\\.\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.hex.pseudo",
+          "match": "\\b0[xX][0-9a-fA-F]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.pseudo",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "keyword-control": {
+      "patterns": [
+        {
+          "name": "keyword.control.program.pseudo",
+          "match": "\\b(program|kamus|algoritma|endprogram|dictionary|algorithm)\\b"
+        },
+        {
+          "name": "keyword.control.subprogram.pseudo",
+          "match": "\\b(function|endfunction|procedure|endprocedure|return)\\b"
+        },
+        {
+          "name": "keyword.control.conditional.pseudo",
+          "match": "\\b(if|then|else|endif)\\b"
+        },
+        {
+          "name": "keyword.control.case.pseudo",
+          "match": "\\b(case|of|endcase)\\b"
+        },
+        {
+          "name": "keyword.control.loop.pseudo",
+          "match": "\\b(for|to|do|endfor|while|endwhile|repeat|until)\\b"
+        }
+      ]
+    },
+    "keyword-io": {
+      "patterns": [
+        {
+          "name": "keyword.io.pseudo",
+          "match": "\\b(input|output|allocate|deallocate)\\b"
+        }
+      ]
+    },
+    "keyword-type": {
+      "patterns": [
+        {
+          "name": "storage.type.pseudo",
+          "match": "\\b(integer|real|char|boolean|string|array|of|pointer|to|type|constant)\\b"
+        },
+        {
+          "name": "storage.modifier.pseudo",
+          "match": "\\b(in\\/out|in|out)\\b"
+        }
+      ]
+    },
+    "constant": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.pseudo",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.language.nil.pseudo",
+          "match": "\\bNIL\\b"
+        }
+      ]
+    },
+    "operator": {
+      "patterns": [
+        {
+          "name": "keyword.operator.logical.pseudo",
+          "match": "\\b(and|or|not|div|mod)\\b"
+        },
+        {
+          "name": "keyword.operator.comparison.pseudo",
+          "match": "==|!=|<=|>=|<|>"
+        },
+        {
+          "name": "keyword.operator.pointer.pseudo",
+          "match": "->"
+        },
+        {
+          "name": "keyword.operator.assignment.pseudo",
+          "match": "=(?!=)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.pseudo",
+          "match": "\\+|-|\\*|\\/|&"
+        },
+        {
+          "name": "keyword.operator.range.pseudo",
+          "match": "\\.\\."
+        },
+        {
+          "name": "punctuation.separator.pseudo",
+          "match": "[:,;]"
+        },
+        {
+          "name": "punctuation.bracket.pseudo",
+          "match": "[\\{\\}\\(\\)\\[\\]<>]"
+        },
+        {
+          "name": "keyword.operator.address.pseudo",
+          "match": "&(?=[a-zA-Z_])"
+        },
+        {
+          "name": "keyword.operator.dereference.pseudo",
+          "match": "\\*(?=\\w)"
+        }
+      ]
+    },
+    "function-call": {
+      "name": "entity.name.function.pseudo",
+      "match": "\\b([a-zA-Z_]\\w*)(?=\\s*\\()"
+    },
+    "identifier": {
+      "patterns": [
+        {
+          "name": "entity.name.type.pseudo",
+          "match": "(?<=\\btype\\s)([a-zA-Z_]\\w*)"
+        },
+        {
+          "name": "variable.other.property.pseudo",
+          "match": "(?:->|\\.)([a-zA-Z_]\\w*)"
+        },
+        {
+          "name": "variable.other.pseudo",
+          "match": "\\b[a-zA-Z_]\\w*\\b"
+        }
+      ]
+    }
+  }
+}

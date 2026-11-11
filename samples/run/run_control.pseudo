@@ -1,0 +1,34 @@
+program run_control
+kamus
+  a, i, s : integer
+algoritma
+  a = 3
+  if a > 5 then
+    output("big")
+  else if a == 3 then
+    output("three")
+  else
+    output("small")
+  endif
+  case a of
+    1:
+      output("satu")
+    2, 3:
+      output("dua-tiga")
+    else:
+      output("lain")
+  endcase
+  s = 0
+  for i = 0 to 4 do
+    s = s + i
+  endfor
+  output("sum:", s)
+  while s > 0 do
+    s = s - 1
+  endwhile
+  output("down:", s)
+  repeat
+    s = s + 1
+  until s >= 3
+  output("up:", s)
+endprogram

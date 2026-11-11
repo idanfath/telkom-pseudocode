@@ -1,0 +1,46 @@
+program run_list
+kamus
+  type Infotype : integer
+  type Address : pointer to ElmList
+  type ElmList : <
+    info : Infotype,
+    next : Address
+  >
+  type List : <
+    first : Address
+  >
+  L : List
+  p, q : Address
+  s, n : integer
+algoritma
+  L.first = NIL
+  p = New_Element(10)
+  L.first = p
+  q = New_Element(20)
+  p->next = q
+  s = 0
+  n = 0
+  p = L.first
+  while p != NIL do
+    s = s + p->info
+    n = n + 1
+    p = p->next
+  endwhile
+  output("sum:", s)
+  output("count:", n)
+  p = L.first
+  q = (p->next)
+  deallocate(p)
+  deallocate(q)
+endprogram
+
+function New_Element(data : Infotype) -> Address
+{ Mengembalikan pointer ke elemen baru teralokasi }
+kamus
+  p : Address
+algoritma
+  allocate(p)
+  p->info = data
+  p->next = NIL
+  return p
+endfunction

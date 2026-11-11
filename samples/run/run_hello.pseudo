@@ -1,0 +1,10 @@
+program run_hello
+kamus
+  nama : string
+  n : integer
+algoritma
+  input(nama, n)
+  output("Halo " + "Dunia")
+  output("Nama:", nama)
+  output("n:", n)
+endprogram

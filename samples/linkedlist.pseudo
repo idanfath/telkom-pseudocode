@@ -1,0 +1,80 @@
+program demo_list
+kamus
+  constant MAX : integer = 100
+  type desimal : real
+  type Mahasiswa : <
+    nama : string,
+    umur : integer
+  >
+  type Infotype : integer
+  type Address : pointer to ElmList
+  type ElmList : <
+    info : Infotype,
+    next : Address
+  >
+  type List : <
+    first : Address
+  >
+  type myArr : array[0..MAX-1] of integer
+  arr : myArr
+  data_mhs : array[0..MAX-1] of Mahasiswa
+  L : List
+  p : Address
+  x : integer
+  c : char
+  ok : boolean
+  s : string
+algoritma
+  x = 10 div 3
+  x = x mod 2
+  c = 'a'
+  ok = true and not false
+  s = "ab"
+  output("char:", c)
+  output("len:", len(s))
+  Create_List(L)
+  p = New_Element(42)
+  p->info = 7
+  p->next = NIL
+  L.first = p
+  output("found:", search(L, 7) != NIL)
+  case x of
+    1:
+      output("satu")
+    2:
+      output("dua")
+    else:
+      output("lain")
+  endcase
+endprogram
+
+procedure Create_List(in/out L : List)
+{ I.S. -
+  F.S. Pointer first dari List L bernilai NIL }
+algoritma
+  L.first = NIL
+  { wtf is this }
+endprocedure
+
+function New_Element(data : Infotype) -> Address
+{ Mengembalikan pointer ke elemen baru teralokasi }
+kamus
+  p : Address
+algoritma
+  allocate(p)
+  p->info = data
+  p->next = NIL
+  return p
+endfunction
+
+function search(L : List, v : Infotype) -> Address
+{ Mengembalikan pointer ke elemen berisi v jika ditemukan, atau NIL jika tidak ada }
+kamus
+  p : Address
+algoritma
+  p = L.first
+  while p != NIL and p->info != v do
+    p = p->next
+  endwhile
+  return p
+endfunction

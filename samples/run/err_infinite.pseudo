@@ -1,0 +1,10 @@
+program err_infinite
+kamus
+  x : integer
+algoritma
+  x = 0
+  while x >= 0 do
+    x = x + 1
+  endwhile
+  output(x)
+endprogram

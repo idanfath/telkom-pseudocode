@@ -1,0 +1,12 @@
+program run_struct
+kamus
+  type Mahasiswa : <
+    nama : string,
+    umur : integer
+  >
+  m : Mahasiswa
+algoritma
+  m.nama = "Aep"
+  m.umur = 20
+  output(m.nama, m.umur)
+endprogram

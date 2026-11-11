@@ -1,0 +1,29 @@
+program run_swap
+kamus
+  a, b : integer
+algoritma
+  a = 10
+  b = 20
+  swap(a, b)
+  output(a, b)
+  inc(a)
+  output(a)
+endprogram
+
+procedure swap(in/out x, in/out y: integer)
+{ I.S. x dan y terdefinisi
+  F.S. x dan y bertukar }
+kamus
+  t : integer
+algoritma
+  t = x
+  x = y
+  y = t
+endprocedure
+
+procedure inc(in/out v: integer)
+{ I.S. v terdefinisi
+  F.S. v bertambah 1 }
+algoritma
+  v = v + 1
+endprocedure

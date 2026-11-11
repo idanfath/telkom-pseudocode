@@ -1,0 +1,57 @@
+{
+  "comments": {
+    "blockComment": ["{", "}"]
+  },
+  "brackets": [
+    ["{", "}"],
+    ["(", ")"],
+    ["[", "]"]
+  ],
+  "autoClosingPairs": [
+    {
+      "open": "{",
+      "close": "}"
+    },
+    {
+      "open": "(",
+      "close": ")"
+    },
+    {
+      "open": "[",
+      "close": "]"
+    },
+    {
+      "open": "\"",
+      "close": "\"",
+      "notIn": [
+        "string"
+      ]
+    },
+    {
+      "open": "'",
+      "close": "'",
+      "notIn": ["string", "comment"]
+    }
+  ],
+  "surroundingPairs": [
+    ["{", "}"],
+    ["(", ")"],
+    ["[", "]"],
+    [
+      "\"",
+      "\""
+    ],
+    ["'", "'"]
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "^\\s*(kamus|algoritma|dictionary|algorithm|repeat|else|else\\s*:|else\\s+if\\b.*\\bthen|if\\b.*\\bthen|case\\b.*\\bof|for\\b.*\\bdo|while\\b.*\\bdo|type\\s+[a-zA-Z_]\\w*\\s*:\\s*<|[^{:\\s][^{:]*:)\\s*(\\{[^}]*\\}\\s*)?$",
+    "decreaseIndentPattern": "^\\s*(>\\s*$|endif\\b|endcase\\b|endfor\\b|endwhile\\b|endprogram\\b|endfunction\\b|endprocedure\\b|else\\b|until\\b|algoritma\\b|algorithm\\b)"
+  },
+  "folding": {
+    "markers": {
+      "start": "^(program|function|procedure)\\b|^\\s*(if|case|for|while|repeat)\\b",
+      "end": "^\\s*(endprogram\\b|endfunction\\b|endprocedure\\b|endif\\b|endcase\\b|endfor\\b|endwhile\\b|until\\b)"
+    }
+  },
+  "wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>\\/\\?\\s]+)(\\/(out))?"
+}

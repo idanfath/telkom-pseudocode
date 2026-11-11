@@ -1,0 +1,13 @@
+program err_arity
+kamus
+  r : integer
+algoritma
+  r = f(1, 2)
+  output(r)
+endprogram
+
+function f(a: integer) -> integer
+{ one param }
+algoritma
+  return a
+endfunction

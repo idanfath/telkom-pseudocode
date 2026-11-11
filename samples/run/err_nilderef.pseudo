@@ -1,0 +1,11 @@
+program err_nilderef
+kamus
+  type Address : pointer to ElmList
+  type ElmList : <
+    info : integer,
+    next : Address
+  >
+  p : Address
+algoritma
+  p->info = 5
+endprogram

@@ -1,0 +1,7 @@
+program err_uninit
+kamus
+  x, y : integer
+algoritma
+  y = x + 1
+  output(y)
+endprogram

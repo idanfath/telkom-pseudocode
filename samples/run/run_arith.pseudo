@@ -1,0 +1,16 @@
+program run_arith
+kamus
+  a, b : integer
+  r : real
+  f : boolean
+algoritma
+  a = 17
+  b = 5
+  output(a div b, a mod b)
+  r = a / 2.0
+  output(r)
+  output((2 + 3) * 4 - 10 div 3)
+  f = (a > b) and not (a == b) or false
+  output(f)
+  output(1 + 2 * 3 == 7)
+endprogram

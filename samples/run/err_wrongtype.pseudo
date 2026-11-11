@@ -1,0 +1,8 @@
+program err_wrongtype
+kamus
+  x : integer
+  s : string
+algoritma
+  x = "hello"
+  output(x)
+endprogram

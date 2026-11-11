@@ -1,0 +1,9 @@
+program err_typemismatch
+kamus
+  x : integer
+  s : string
+algoritma
+  x = 5
+  s = "a" + x
+  output(s)
+endprogram

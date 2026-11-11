@@ -1,0 +1,68 @@
+{
+  "name": "telkom-pseudocode",
+  "displayName": "Telkom Pseudocode",
+  "description": "Syntax highlighting, live checks, completion, rename, and a runner for Telkom University pseudocode",
+  "version": "0.7.0",
+  "publisher": "telkom-pseudocode",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages"],
+  "activationEvents": ["onLanguage:telkom-pseudocode", "onCommand:telkomPseudocode.runFile"],
+  "main": "./extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "telkom-pseudocode",
+        "aliases": ["Telkom Pseudocode", "telkom-pseudocode"],
+        "extensions": [".pseudo", ".tpseudo"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "telkom-pseudocode",
+        "scopeName": "source.telkom-pseudocode",
+        "path": "./syntaxes/telkom-pseudocode.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "telkom-pseudocode",
+        "path": "./snippets/telkom-pseudocode.code-snippets"
+      }
+    ],
+    "commands": [
+      {
+        "command": "telkomPseudocode.checkFile",
+        "title": "Telkom Pseudocode: Check File"
+      },
+      {
+        "command": "telkomPseudocode.runFile",
+        "title": "Telkom Pseudocode: Run File",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "telkomPseudocode.runFile",
+          "when": "editorLangId == telkom-pseudocode",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "telkomPseudocode.runFile",
+        "key": "ctrl+f5",
+        "mac": "cmd+f5",
+        "when": "editorLangId == telkom-pseudocode"
+      }
+    ]
+  },
+  "scripts": {
+    "check": "node scripts/check-grammar.mjs && node scripts/check-diagnostics.mjs && node scripts/check-interpreter.mjs && node scripts/check-completion.mjs && node scripts/check-rename.mjs && node scripts/check-extension.mjs"
+  }
+}

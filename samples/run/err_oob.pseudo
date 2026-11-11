@@ -1,0 +1,7 @@
+program err_oob
+kamus
+  arr : array[0..2] of integer
+algoritma
+  arr[5] = 1
+  output(arr[5])
+endprogram

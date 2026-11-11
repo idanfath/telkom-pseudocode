@@ -1,0 +1,24 @@
+program halo_dunia
+kamus
+  nama : string
+  n, i : integer
+algoritma
+  nama = "Dunia"
+  n = 3
+  output("Halo " + "Dunia")
+  output("Nama:", nama)
+  if n > 0 then
+    output("positif")
+  else
+    output("non-positif")
+  endif
+  for i = 0 to n-1 do
+    output("iterasi:", i)
+  endfor
+  while n > 0 do
+    n = n - 1
+  endwhile
+  repeat
+    n = n + 1
+  until n >= 3
+endprogram

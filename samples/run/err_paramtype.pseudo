@@ -1,0 +1,16 @@
+program err_paramtype
+kamus
+  r : integer
+algoritma
+  r = fact("nope")
+  output(r)
+endprogram
+
+function fact(n: integer) -> integer
+{ Mengembalikan faktorial }
+algoritma
+  if n == 0 then
+    return 1
+  endif
+  return n * fact(n - 1)
+endfunction

@@ -1,0 +1,9 @@
+program err_constassign
+kamus
+  constant MAX : integer = 5
+  x : integer
+algoritma
+  x = MAX
+  MAX = 6
+  output(x)
+endprogram

@@ -1,0 +1,108 @@
+{
+  "Program skeleton": {
+    "prefix": "program",
+    "body": [
+      "program ${1:nama_program}",
+      "kamus",
+      "  ${2:x} : ${3:integer}",
+      "algoritma",
+      "  ${2:x} = ${4:0}",
+      "  output(${2:x})",
+      "endprogram"
+    ],
+    "description": "Full program skeleton (no blank lines between structural keywords)"
+  },
+  "Function": {
+    "prefix": "function",
+    "body": [
+      "function ${1:nama}(${2:a, b: integer}) -> ${3:integer}",
+      "{ ${4:deskripsi} }",
+      "kamus",
+      "  ${5:result} : ${3:integer}",
+      "algoritma",
+      "  ${6:body}",
+      "  return ${5:result}",
+      "endfunction"
+    ],
+    "description": "Function with return"
+  },
+  "Procedure": {
+    "prefix": "procedure",
+    "body": [
+      "procedure ${1:nama}(in ${2:B, C: integer}, in/out ${3:A: integer})",
+      "{ I.S. ${4:kondisi awal}",
+      "  F.S. ${5:kondisi akhir} }",
+      "algoritma",
+      "  ${6:body}",
+      "endprocedure"
+    ],
+    "description": "Procedure with I.S./F.S."
+  },
+  "If": {
+    "prefix": "if",
+    "body": ["if ${1:kondisi} then", "  ${2:aksi}", "endif"],
+    "description": "If block"
+  },
+  "Case": {
+    "prefix": "case",
+    "body": [
+      "case ${1:variabel} of",
+      "  ${2:nilai_1}:",
+      "    ${3:aksi}",
+      "  else:",
+      "    ${4:aksi}",
+      "endcase"
+    ],
+    "description": "Case of block"
+  },
+  "For loop": {
+    "prefix": "for",
+    "body": ["for ${1:i} = 0 to ${2:n}-1 do", "  ${3:aksi}", "endfor"],
+    "description": "For loop (inclusive, 0 to n-1)"
+  },
+  "While loop": {
+    "prefix": "while",
+    "body": ["while ${1:kondisi} do", "  ${2:aksi}", "endwhile"],
+    "description": "While loop"
+  },
+  "Repeat until": {
+    "prefix": "repeat",
+    "body": ["repeat", "  ${1:aksi}", "until ${2:kondisi}"],
+    "description": "Repeat until (runs once, stops when true)"
+  },
+  "Array declaration": {
+    "prefix": "array",
+    "body": ["${1:arr} : array[0..${2:MAX}-1] of ${3:integer}"],
+    "description": "Array declaration"
+  },
+  "Struct": {
+    "prefix": "struct",
+    "body": [
+      "type ${1:Mahasiswa} : <",
+      "  ${2:nama} : string,",
+      "  ${3:umur} : integer",
+      ">"
+    ],
+    "description": "Struct type"
+  },
+  "Singly linked list": {
+    "prefix": "sll",
+    "body": [
+      "type Infotype : ${1:integer}",
+      "type Address : pointer to ElmList",
+      "type ElmList : <",
+      "  info : Infotype,",
+      "  next : Address",
+      ">",
+      "type List : <",
+      "  first : Address",
+      ">"
+    ],
+    "description": "SLL ADT skeleton"
+  },
+  "Output mixed": {
+    "prefix": "output",
+    "body": ["output(\"${1:label}:\", ${2:x})"],
+    "description": "Mixed-type output (comma, not +)"
+  }
+}

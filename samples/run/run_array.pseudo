@@ -1,0 +1,16 @@
+program run_array
+kamus
+  arr : array[0..4] of integer
+  i, s : integer
+algoritma
+  for i = 0 to 4 do
+    arr[i] = i * 2
+  endfor
+  s = 0
+  i = 0
+  while i <= 4 do
+    s = s + arr[i]
+    i = i + 1
+  endwhile
+  output("sum:", s)
+endprogram

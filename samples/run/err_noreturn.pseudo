@@ -1,0 +1,15 @@
+program err_noreturn
+kamus
+  r : integer
+algoritma
+  r = f(3)
+  output(r)
+endprogram
+
+function f(n: integer) -> integer
+{ no return here }
+kamus
+  x : integer
+algoritma
+  x = n + 1
+endfunction

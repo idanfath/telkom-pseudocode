@@ -1,0 +1,10 @@
+program run_subrange
+kamus
+  umur : integer[0..100]
+  nilai : integer[0..100]
+algoritma
+  input(umur)
+  nilai = umur + 10
+  output("umur:", umur)
+  output("nilai:", nilai)
+endprogram

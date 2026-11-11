@@ -1,0 +1,12 @@
+program run_string
+kamus
+  s : string
+  c : char
+algoritma
+  s = "abcde"
+  output(len(s))
+  c = s[1]
+  output(c)
+  s[0] = "Z"
+  output(s)
+endprogram
