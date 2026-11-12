@@ -3,7 +3,7 @@ kamus
   nama : string
   n, i : integer
 algoritma
-  nama = "Dunia"
+  input(nama)
   n = 3
   output("Halo " + "Dunia")
   output("Nama:", nama)

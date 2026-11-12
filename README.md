@@ -2,6 +2,10 @@
 
 Syntax highlighting, live checking, completion, rename and a runner for Telkom University pseudocode (`.pseudo`, `.tpseudo`).
 
+![Terminal Runner](images/runner.png)
+
+![Live Checking and Diagnostics](images/diagnostics.png)
+
 ## Features
 
 - **Highlighting**: comments `{ }`, strings, chars, numbers, keywords, types, `NIL`, operators (`div/mod/and/or/not`, `==`, `->`, `&`, `*`, `..`), calls, type names, `->field`.

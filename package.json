@@ -4,19 +4,30 @@
   "description": "Syntax highlighting, live type checking, completion, rename, and a terminal runner for Telkom University pseudocode",
   "version": "0.8.0",
   "publisher": "telkom-pseudocode",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/idanfath/telkom-pseudocode-vscode.git"
+  },
   "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Programming Languages"],
-  "activationEvents": ["onLanguage:telkom-pseudocode", "onCommand:telkomPseudocode.runFile"],
+  "categories": [
+    "Programming Languages"
+  ],
   "main": "./extension.js",
   "contributes": {
     "languages": [
       {
         "id": "telkom-pseudocode",
-        "aliases": ["Telkom Pseudocode", "telkom-pseudocode"],
-        "extensions": [".pseudo", ".tpseudo"],
+        "aliases": [
+          "Telkom Pseudocode",
+          "telkom-pseudocode"
+        ],
+        "extensions": [
+          ".pseudo",
+          ".tpseudo"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
