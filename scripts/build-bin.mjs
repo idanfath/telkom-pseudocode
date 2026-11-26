@@ -1,4 +1,5 @@
-// Builds standalone tpseudo executables (no Node needed) into dist/ with Bun.
+// Builds standalone tpseudo executables (no Node needed) into dist/ with Bun, then packs each
+// into a smaller .tar.xz / .zip next to it (scripts/pack-bin.mjs).
 //   node scripts/build-bin.mjs            every platform
 //   node scripts/build-bin.mjs linux-x64  only the ones named
 import { spawnSync } from 'node:child_process';
@@ -19,3 +20,6 @@ for (const t of targets) {
   if (r.error) { console.error('bun not found: install it from https://bun.sh'); process.exit(1); }
   if (r.status) process.exit(r.status);
 }
+
+const pack = spawnSync(process.execPath, [join(root, 'scripts', 'pack-bin.mjs'), join(root, 'dist')], { stdio: 'inherit' });
+process.exit(pack.status ?? 1);
