@@ -54,7 +54,7 @@ function runInWorker(text, input = '', opts = {}) {
  * @param {{onOutput: (line: string) => void, onNeedInput: () => void, onDone: (result: any) => void}} handlers
  *   onDone gets the run result, or null when the run was killed
  * @param {object} [opts] runProgram options
- * @returns {{sendLine: (line: string) => void, kill: () => void}}
+ * @returns {{sendLine: (line: string) => void, endInput: () => void, kill: () => void}}
  */
 function startRun(text, handlers, opts = {}) {
   const shared = new SharedArrayBuffer(8 + LINE_BYTES);
@@ -78,6 +78,10 @@ function startRun(text, handlers, opts = {}) {
       bytes.set(data);
       Atomics.store(ctl, 1, data.length);
       wake(READY);
+    },
+    /** No more input will come: input() now sees end of input instead of waiting. */
+    endInput() {
+      if (!finished) wake(CLOSED);
     },
     kill() {
       if (finished) return;

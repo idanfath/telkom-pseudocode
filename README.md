@@ -1,12 +1,32 @@
-# Telkom Pseudocode for VS Code
+# Telkom Pseudocode
 
-Syntax highlighting, live checking, completion, rename and a runner for Telkom University pseudocode (`.pseudo`, `.tpseudo`).
+Everything for writing and running Telkom University pseudocode (`.pseudo`, `.tpseudo`) in one project:
 
-![Terminal Runner](images/runner.png)
+- a **type checker** that catches syntax, name and type errors and the course's style rules;
+- a **runner** that executes programs, with live output and `input(...)` read as it is needed;
+- a **VS Code extension** with highlighting, snippets, live checking, completion, rename and a run button;
+- a **command line**, `tpseudo`, that checks and runs files in any terminal.
 
-![Live Checking and Diagnostics](images/diagnostics.png)
+The editor and the command line share one checker and one runner (`lang/`), so a program behaves the same in both.
 
-## Features
+![Terminal Runner](https://raw.githubusercontent.com/idanfath/telkom-pseudocode/main/images/runner.png)
+
+![Live Checking and Diagnostics](https://raw.githubusercontent.com/idanfath/telkom-pseudocode/main/images/diagnostics.png)
+
+## Install
+
+**VS Code extension**: install the `.vsix` from the [releases page](https://github.com/idanfath/telkom-pseudocode/releases) (Extensions view → `...` → *Install from VSIX...*).
+
+**Command line**, pick one:
+
+```bash
+npm i -g telkom-pseudocode       # needs Node 18+; gives you tpseudo
+npx telkom-pseudocode main.pseudo   # or run once without installing
+```
+
+or download a standalone `tpseudo` for Linux, Windows or macOS from the [releases page](https://github.com/idanfath/telkom-pseudocode/releases). It needs nothing else installed.
+
+## Editor features
 
 - **Highlighting**: comments `{ }`, strings, chars, numbers, keywords, types, `NIL`, operators (`div/mod/and/or/not`, `==`, `->`, `&`, `*`, `..`), calls, type names, `->field`.
 - **Editor support**: `{ }` comment toggle, bracket matching, indentation and folding for every block, snippets (`program`, `function`, `procedure`, `if`, `case`, `for`, `while`, `repeat`, `array`, `struct`, `sll`, `output`).
@@ -36,6 +56,20 @@ Syntax highlighting, live checking, completion, rename and a runner for Telkom U
 - `function` / `procedure` headers inside `kamus` (prototype style from some course material) are accepted and ignored; declare the subprogram itself outside the program block.
 - Keywords are lowercase. `PROGRAM` or `Integer` is reported with the spelling to use.
 
+## Command line
+
+`tpseudo` checks and runs files outside VS Code (see [Install](#install)).
+
+```bash
+tpseudo main.pseudo                 # check, then run; input() reads what you type
+tpseudo main.pseudo < input.txt     # or reads from a file
+tpseudo check a.pseudo b.pseudo     # errors and warnings, no run
+```
+
+Options: `--max-steps <n>` (0 = no limit), `--no-check` to run despite checker errors, `--no-color`. Errors are printed as `file:line:col: error: message` on stderr, program output on stdout.
+
+Exit codes: `0` ok, `1` checker errors, `2` runtime error, `3` bad arguments or unreadable file, `130` stopped with `Ctrl+C`.
+
 ## Rules not confirmed with a lecturer
 
 These follow the course material as far as it goes; check with your lecturer.
@@ -53,7 +87,7 @@ No dependencies and no build step.
 npm run check
 ```
 
-runs every check: grammar, checker, runner, completion, rename, extension wiring, and a robustness pass that feeds thousands of half-typed programs to all of them.
+runs every check: grammar, checker, runner, completion, rename, extension wiring, the command line, and a robustness pass that feeds thousands of half-typed programs to all of them.
 
 The language lives in `lang/` and does not import VS Code:
 
@@ -67,10 +101,24 @@ The language lives in `lang/` and does not import VS Code:
 | `run-worker.js`, `run-session.js` | run on a worker thread; terminal input and output |
 | `completion.js`, `rename.js` | lookups into the model |
 
+`bin/tpseudo.js` is the command line; it uses `lang/` directly.
+
 `extension.js` only connects these to VS Code. To try a change, press `F5` in VS Code to open an Extension Development Host and open a file from `samples/`.
 
-## Package
+From a clone, `npm link` puts your working copy's `tpseudo` on your PATH.
+
+## Release
+
+No compile step: everything is plain JavaScript with no dependencies. A release is three kinds of file:
 
 ```bash
-npm i -g @vscode/vsce && vsce package
+npx @vscode/vsce package     # telkom-pseudocode-<version>.vsix: the editor extension
+npm publish                  # the command line on npm (bin/ and lang/ only, see .npmignore)
+npm run build:bin            # dist/tpseudo-<platform>: standalone executables, needs Bun
+```
+
+`npm run build:bin linux-x64` builds one platform only. To check a built executable:
+
+```bash
+TPSEUDO_BIN=dist/tpseudo-linux-x64 node scripts/check-cli.mjs
 ```

@@ -1,12 +1,16 @@
 {
   "name": "telkom-pseudocode",
   "displayName": "Telkom Pseudocode",
-  "description": "Syntax highlighting, live type checking, completion, rename, and a terminal runner for Telkom University pseudocode",
-  "version": "0.8.0",
+  "description": "Type checker, runner, VS Code extension and command line (tpseudo) for Telkom University pseudocode",
+  "version": "0.9.0",
   "publisher": "telkom-pseudocode",
   "repository": {
     "type": "git",
-    "url": "https://github.com/idanfath/telkom-pseudocode-vscode.git"
+    "url": "https://github.com/idanfath/telkom-pseudocode.git"
+  },
+  "homepage": "https://github.com/idanfath/telkom-pseudocode#readme",
+  "bugs": {
+    "url": "https://github.com/idanfath/telkom-pseudocode/issues"
   },
   "license": "MIT",
   "engines": {
@@ -16,6 +20,9 @@
     "Programming Languages"
   ],
   "main": "./extension.js",
+  "bin": {
+    "tpseudo": "./bin/tpseudo.js"
+  },
   "contributes": {
     "languages": [
       {
@@ -74,6 +81,15 @@
     ]
   },
   "scripts": {
-    "check": "node scripts/check-grammar.mjs && node scripts/check-diagnostics.mjs && node scripts/check-interpreter.mjs && node scripts/check-completion.mjs && node scripts/check-rename.mjs && node scripts/check-extension.mjs && node scripts/check-robustness.mjs"
-  }
+    "check": "node scripts/check-grammar.mjs && node scripts/check-diagnostics.mjs && node scripts/check-interpreter.mjs && node scripts/check-completion.mjs && node scripts/check-rename.mjs && node scripts/check-extension.mjs && node scripts/check-robustness.mjs && node scripts/check-cli.mjs",
+    "build:bin": "node scripts/build-bin.mjs"
+  },
+  "keywords": [
+    "telkom",
+    "pseudocode",
+    "pseudo",
+    "algoritma",
+    "interpreter",
+    "cli"
+  ]
 }

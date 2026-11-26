@@ -1,0 +1,14 @@
+# The npm package is the command line only (bin/ and lang/). The editor extension ships as a .vsix.
+.vscode/
+.vscodeignore
+.gitignore
+extension.js
+language-configuration.json
+syntaxes/
+snippets/
+samples/
+scripts/
+images/
+dist/
+*.vsix
+CHANGELOG.md
