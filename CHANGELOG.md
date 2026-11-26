@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0
+
+- `tpseudo`, a command line runner: `tpseudo file.pseudo` checks and runs a file in any terminal (input from the keyboard or a pipe), `tpseudo check` reports problems. Exit codes tell checker errors, runtime errors and success apart. Not included in the extension package.
+- Released three ways: on npm (`npm i -g telkom-pseudocode` or `npx telkom-pseudocode`), as standalone executables built with Bun (`npm run build:bin`), and alongside the `.vsix`.
+- The project is renamed from `telkom-pseudocode-vscode` to `telkom-pseudocode`, since it is now the checker, runner, extension and command line together.
+
 ## 0.8.0
 
 The checker, runner, completion and rename were rewritten on one shared syntax tree (`lang/`). Before, each of them re-read the source text with its own rules.
