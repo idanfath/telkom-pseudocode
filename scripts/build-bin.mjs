@@ -15,7 +15,7 @@ if (bad.length) { console.error(`Unknown target(s): ${bad.join(', ')}. Known: ${
 mkdirSync(join(root, 'dist'), { recursive: true });
 for (const t of targets) {
   const out = join('dist', `tpseudo-${t}${t.startsWith('windows') ? '.exe' : ''}`);
-  const r = spawnSync('bun', ['build', '--compile', '--minify', `--target=bun-${t}`, 'bin/tpseudo.js', '--outfile', out], { cwd: root, stdio: 'inherit' });
+  const r = spawnSync('bun', ['build', '--compile', '--minify', `--target=bun-${t}`, 'bin/tpseudo.js', 'lang/run-worker.js', '--outfile', out], { cwd: root, stdio: 'inherit' });
   if (r.error) { console.error('bun not found: install it from https://bun.sh'); process.exit(1); }
   if (r.status) process.exit(r.status);
 }

@@ -2,7 +2,7 @@
   "name": "telkom-pseudocode",
   "displayName": "Telkom Pseudocode",
   "description": "Type checker, runner, VS Code extension and command line (tpseudo) for Telkom University pseudocode",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "publisher": "telkom-pseudocode",
   "repository": {
     "type": "git",
