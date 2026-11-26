@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.1
+
+- Fixed: the standalone `tpseudo` executables from 0.9.0 crashed with `ModuleNotFound ... run-worker.js` on any machine but the one that built them. The runner's worker is now bundled into the executable.
+
 ## 0.9.0
 
 - `tpseudo`, a command line runner: `tpseudo file.pseudo` checks and runs a file in any terminal (input from the keyboard or a pipe), `tpseudo check` reports problems. Exit codes tell checker errors, runtime errors and success apart. Not included in the extension package.

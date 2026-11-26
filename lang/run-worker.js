@@ -34,8 +34,15 @@ if (!isMainThread && workerData && workerData.telkomRun) {
 
 const crash = (msg) => ({ output: [], error: { line: 0, msg }, staticErrors: null, leaks: 0 });
 
+// A standalone build (bun build --compile) bundles this file as its own entry point, listed
+// after the CLI in scripts/build-bin.mjs. There __filename is the path on the machine that
+// built it, so the worker is named by its path inside the bundle instead: next to the
+// executable's own entry, e.g. /$bunfs/root/lang/run-worker.js (B:\~BUN\root\... on Windows).
+const IN_BUN_BINARY = typeof Bun !== 'undefined' && /^(\/\$bunfs\/|[A-Z]:[\\/]~BUN[\\/])/.test(Bun.main);
+const WORKER_FILE = IN_BUN_BINARY ? Bun.main.replace(/[^\\/]*$/, '') + 'lang/run-worker.js' : __filename;
+
 function spawn(text, input, opts, shared) {
-  return new Worker(__filename, { workerData: { telkomRun: true, text, input, opts, shared }, resourceLimits: { stackSizeMb: STACK_MB } });
+  return new Worker(WORKER_FILE, { workerData: { telkomRun: true, text, input, opts, shared }, resourceLimits: { stackSizeMb: STACK_MB } });
 }
 
 function runInWorker(text, input = '', opts = {}) {
