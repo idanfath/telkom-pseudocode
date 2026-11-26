@@ -25,7 +25,7 @@ npm i -g telkom-pseudocode       # needs Node 18+; gives you tpseudo
 npx telkom-pseudocode main.pseudo   # or run once without installing
 ```
 
-or download a standalone `tpseudo` for Linux, Windows or macOS from the [releases page](https://github.com/idanfath/telkom-pseudocode/releases). It needs nothing else installed.
+or download a standalone `tpseudo` for Linux, Windows or macOS from the [releases page](https://github.com/idanfath/telkom-pseudocode/releases). It needs nothing else installed. It bundles its own JavaScript runtime, so each file is 60–95 MB; the `.tar.xz` (Linux, macOS) and `.zip` (Windows) archives of the same file are 15–37 MB.
 
 **Agent skill**, for AI assistants (see [Agent skill](#agent-skill)):
 
@@ -135,7 +135,7 @@ No compile step: everything is plain JavaScript with no dependencies. A release 
 npx @vscode/vsce package     # telkom-pseudocode-<version>.vsix: the editor extension
 npm stage publish            # the command line on npm (bin/ and lang/ only, see .npmignore);
                              # then approve it with 2FA: npm stage approve <id>, or npmjs.com → Staged Packages
-npm run build:bin            # dist/tpseudo-<platform>: standalone executables, needs Bun
+npm run build:bin            # dist/tpseudo-<platform> standalone executables (needs Bun), plus .tar.xz / .zip of each
 npm run build:skill          # dist/telkom-pseudocode-skill.zip: the skill for claude.ai
 ```
 
