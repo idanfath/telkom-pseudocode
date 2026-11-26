@@ -1,0 +1,15 @@
+{
+  "name": "telkom-pseudocode",
+  "owner": { "name": "idanfath" },
+  "metadata": {
+    "description": "Telkom University pseudocode: agent skill backed by the tpseudo checker and runner"
+  },
+  "plugins": [
+    {
+      "name": "telkom-pseudocode",
+      "source": "./",
+      "description": "Write, check and explain Telkom University pseudocode (kamus, algoritma, endprogram), and verify it with the tpseudo checker",
+      "category": "education"
+    }
+  ]
+}

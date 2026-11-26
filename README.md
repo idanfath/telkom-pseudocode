@@ -5,9 +5,10 @@ Everything for writing and running Telkom University pseudocode (`.pseudo`, `.tp
 - a **type checker** that catches syntax, name and type errors and the course's style rules;
 - a **runner** that executes programs, with live output and `input(...)` read as it is needed;
 - a **VS Code extension** with highlighting, snippets, live checking, completion, rename and a run button;
-- a **command line**, `tpseudo`, that checks and runs files in any terminal.
+- a **command line**, `tpseudo`, that checks and runs files in any terminal;
+- an **agent skill** that teaches AI assistants the format and has them verify their pseudocode with `tpseudo`.
 
-The editor and the command line share one checker and one runner (`lang/`), so a program behaves the same in both.
+The editor, the command line and the skill's checks share one checker and one runner (`lang/`), so a program behaves the same everywhere.
 
 ![Terminal Runner](https://raw.githubusercontent.com/idanfath/telkom-pseudocode/main/images/runner.png)
 
@@ -26,6 +27,15 @@ npx telkom-pseudocode main.pseudo   # or run once without installing
 
 or download a standalone `tpseudo` for Linux, Windows or macOS from the [releases page](https://github.com/idanfath/telkom-pseudocode/releases). It needs nothing else installed.
 
+**Agent skill**, for AI assistants (see [Agent skill](#agent-skill)):
+
+```bash
+npx skills add idanfath/telkom-pseudocode                                  # Claude Code, Codex, Cursor and other agents
+/plugin install telkom-pseudocode --marketplace idanfath/telkom-pseudocode  # inside Claude Code, as a plugin
+```
+
+On claude.ai, upload [`telkom-pseudocode-skill.zip`](https://github.com/idanfath/telkom-pseudocode/releases/latest/download/telkom-pseudocode-skill.zip) under Settings → Capabilities → Skills.
+
 ## Editor features
 
 - **Highlighting**: comments `{ }`, strings, chars, numbers, keywords, types, `NIL`, operators (`div/mod/and/or/not`, `==`, `->`, `&`, `*`, `..`), calls, type names, `->field`.
@@ -34,7 +44,7 @@ or download a standalone `tpseudo` for Linux, Windows or macOS from the [release
   - syntax of every statement and declaration, unclosed blocks, misplaced `else` / `endif`;
   - undeclared names, unknown types, duplicate declarations, reserved words used as names;
   - **types**: wrong-type assignments, arguments and return values, non-boolean conditions, `integer / integer`, comparing structs or arrays, `.` on a pointer and `->` on a struct, wrong argument counts, assigning to a constant;
-  - structure rules from the course: blank lines around `kamus` / `algoritma`, a blank line between units, procedure `I.S.` / `F.S.`, parameter modes, `<-`, `output("x" + number)`, `array[0..MAX]`, `for ... to n`;
+  - structure rules from the course: no blank lines between `program` / `kamus` / `algoritma` / `endprogram`, a blank line between units, procedure `I.S.` / `F.S.`, parameter modes, `<-`, `output("x" + number)`, `array[0..MAX]`, `for ... to n`;
   - variables that may be read before they are assigned, and declarations that are never used.
 - **Run** (`Telkom Pseudocode: Run File`, the play button, or `Ctrl+F5`): the program runs in a terminal. Output appears as it is printed and `input(...)` waits for you to type a line. `Ctrl+C` stops a running program. Checker errors block the run; runtime errors print as `Runtime error at line N: message`.
 - **Completion**: declared variables with their types, functions and procedures with their parameters, struct fields after `.` and `->` (through any chain: `p->next->`, `d[i].`, `((L.first)->next)->`), types inside `kamus`.
@@ -70,6 +80,14 @@ Options: `--max-steps <n>` (0 = no limit), `--no-check` to run despite checker e
 
 Exit codes: `0` ok, `1` checker errors, `2` runtime error, `3` bad arguments or unreadable file, `130` stopped with `Ctrl+C`.
 
+## Agent skill
+
+[`skills/telkom-pseudocode/SKILL.md`](skills/telkom-pseudocode/SKILL.md) teaches an AI assistant the format: types, `kamus` declarations, control flow, functions and procedures, pointers, linked lists, and the common mistakes. It loads when you mention pseudocode, `kamus`, `algoritma` and similar, or ask to convert code to or from pseudocode.
+
+After writing a whole program, function or procedure, the assistant runs `npx telkom-pseudocode check` (or `tpseudo check`) on it and fixes what the checker reports, so its answers pass the same checks as the editor. Without Node or network access it falls back to the written rules.
+
+Every example in the skill is checked by `npm run check`, so the skill and the checker cannot drift apart unnoticed.
+
 ## Rules not confirmed with a lecturer
 
 These follow the course material as far as it goes; check with your lecturer.
@@ -87,7 +105,7 @@ No dependencies and no build step.
 npm run check
 ```
 
-runs every check: grammar, checker, runner, completion, rename, extension wiring, the command line, and a robustness pass that feeds thousands of half-typed programs to all of them.
+runs every check: grammar, checker, runner, completion, rename, extension wiring, the command line, the skill's examples, and a robustness pass that feeds thousands of half-typed programs to all of them.
 
 The language lives in `lang/` and does not import VS Code:
 
@@ -101,7 +119,9 @@ The language lives in `lang/` and does not import VS Code:
 | `run-worker.js`, `run-session.js` | run on a worker thread; terminal input and output |
 | `completion.js`, `rename.js` | lookups into the model |
 
-`bin/tpseudo.js` is the command line; it uses `lang/` directly.
+`bin/tpseudo.js` is the command line; it uses `lang/` directly. `skills/telkom-pseudocode/` is the agent skill and `.claude-plugin/` lists it as a Claude Code plugin.
+
+Code blocks in `SKILL.md` are tagged for `scripts/check-skill.mjs`: ` ```pseudo ` must pass the checker, ` ```pseudo wrong ` must fail it, ` ```pseudo fragment ` is not checked, and ` ```pseudo kamus name=x ` / `uses=x` share declarations between blocks.
 
 `extension.js` only connects these to VS Code. To try a change, press `F5` in VS Code to open an Extension Development Host and open a file from `samples/`.
 
@@ -109,12 +129,14 @@ From a clone, `npm link` puts your working copy's `tpseudo` on your PATH.
 
 ## Release
 
-No compile step: everything is plain JavaScript with no dependencies. A release is three kinds of file:
+No compile step: everything is plain JavaScript with no dependencies. A release is four kinds of file:
 
 ```bash
 npx @vscode/vsce package     # telkom-pseudocode-<version>.vsix: the editor extension
-npm publish                  # the command line on npm (bin/ and lang/ only, see .npmignore)
+npm stage publish            # the command line on npm (bin/ and lang/ only, see .npmignore);
+                             # then approve it with 2FA: npm stage approve <id>, or npmjs.com → Staged Packages
 npm run build:bin            # dist/tpseudo-<platform>: standalone executables, needs Bun
+npm run build:skill          # dist/telkom-pseudocode-skill.zip: the skill for claude.ai
 ```
 
 `npm run build:bin linux-x64` builds one platform only. To check a built executable:

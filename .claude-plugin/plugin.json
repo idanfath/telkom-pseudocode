@@ -1,0 +1,10 @@
+{
+  "name": "telkom-pseudocode",
+  "description": "Write, check and explain Telkom University pseudocode (kamus, algoritma, endprogram), and verify it with the tpseudo checker",
+  "version": "0.9.1",
+  "author": { "name": "idanfath" },
+  "homepage": "https://github.com/idanfath/telkom-pseudocode#agent-skill",
+  "repository": "https://github.com/idanfath/telkom-pseudocode",
+  "license": "MIT",
+  "keywords": ["telkom", "pseudocode", "algoritma", "kamus", "education"]
+}

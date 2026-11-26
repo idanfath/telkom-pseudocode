@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- The agent skill (`skills/telkom-pseudocode/SKILL.md`) lives in this repo. Install it with `npx skills add idanfath/telkom-pseudocode`, as a Claude Code plugin (`/plugin install telkom-pseudocode --marketplace idanfath/telkom-pseudocode`), or upload `telkom-pseudocode-skill.zip` to claude.ai.
+- The skill tells the assistant to check whole programs with `npx telkom-pseudocode check` and fix what it reports, and that the lecturer's version wins where course material differs.
+- `npm run check` checks every example in the skill against the checker (`scripts/check-skill.mjs`).
+- README: the structure rule is "no blank lines between `program` / `kamus` / `algoritma` / `endprogram`" (it read as if blank lines were required).
+
 ## 0.9.1
 
 - Fixed: the standalone `tpseudo` executables from 0.9.0 crashed with `ModuleNotFound ... run-worker.js` on any machine but the one that built them. The runner's worker is now bundled into the executable.
