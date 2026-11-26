@@ -6,7 +6,7 @@
   "publisher": "telkom-pseudocode",
   "repository": {
     "type": "git",
-    "url": "https://github.com/idanfath/telkom-pseudocode.git"
+    "url": "git+https://github.com/idanfath/telkom-pseudocode.git"
   },
   "homepage": "https://github.com/idanfath/telkom-pseudocode#readme",
   "bugs": {
@@ -21,7 +21,7 @@
   ],
   "main": "./extension.js",
   "bin": {
-    "tpseudo": "./bin/tpseudo.js"
+    "tpseudo": "bin/tpseudo.js"
   },
   "contributes": {
     "languages": [
@@ -81,8 +81,9 @@
     ]
   },
   "scripts": {
-    "check": "node scripts/check-grammar.mjs && node scripts/check-diagnostics.mjs && node scripts/check-interpreter.mjs && node scripts/check-completion.mjs && node scripts/check-rename.mjs && node scripts/check-extension.mjs && node scripts/check-robustness.mjs && node scripts/check-cli.mjs",
-    "build:bin": "node scripts/build-bin.mjs"
+    "check": "node scripts/check-grammar.mjs && node scripts/check-diagnostics.mjs && node scripts/check-interpreter.mjs && node scripts/check-completion.mjs && node scripts/check-rename.mjs && node scripts/check-extension.mjs && node scripts/check-robustness.mjs && node scripts/check-cli.mjs && node scripts/check-skill.mjs",
+    "build:bin": "node scripts/build-bin.mjs",
+    "build:skill": "node scripts/build-skill.mjs"
   },
   "keywords": [
     "telkom",

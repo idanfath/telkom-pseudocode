@@ -8,3 +8,5 @@ scripts/**
 bin/**
 dist/**
 .npmignore
+skills/**
+.claude-plugin/**

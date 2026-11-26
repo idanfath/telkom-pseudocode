@@ -12,3 +12,5 @@ images/
 dist/
 *.vsix
 CHANGELOG.md
+skills/
+.claude-plugin/
